@@ -1,0 +1,171 @@
+<section class="products-table">
+  <header class="products-table__header">
+    <div class="products-table__header-row">
+      <div class="products-table__search">
+        <label class="field-label" for="searchInput">Buscar</label>
+        <input id="searchInput" type="text" class="field-input" placeholder="Buscar por nombre, id o descripción..."
+          [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)" />
+      </div>
+
+      <a class="btn btn-primary" routerLink="/products/new">
+        Agregar
+      </a>
+    </div>
+  </header>
+
+  <div *ngIf="isLoading" class="products-table__state products-table__state--loading">
+    Cargando productos...
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage" class="products-table__state products-table__state--error">
+    {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="!isLoading && !errorMessage">
+    <div *ngIf="paginatedProducts.length; else noResults" class="products-table__content">
+      <table class="products-table__table">
+        <thead>
+          <tr>
+            <th>
+              <div class="th-content">
+                <span>Logo</span>
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                <span>Nombre del producto</span>
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                <span>Descripción</span>
+                <button type="button" class="th-info" title="Resumen breve de las características del producto."
+                  aria-label="Información sobre la columna Descripción">
+                  i
+                </button>
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                <span>Fecha de liberación</span>
+                <button type="button" class="th-info" title="Fecha a partir de la cual el producto está disponible."
+                  aria-label="Información sobre la columna Fecha de liberación">
+                  i
+                </button>
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                <span>Fecha de revisión</span>
+                <button type="button" class="th-info"
+                  title="Fecha en la que se debe revisar o restructurar el producto."
+                  aria-label="Información sobre la columna Fecha de revisión">
+                  i
+                </button>
+              </div>
+            </th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let product of paginatedProducts">
+            <td class="cell-logo">
+              <div class="logo-circle">
+                <img [src]="product.logo" [alt]="product.name" />
+              </div>
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.description }}</td>
+            <td>{{ product.date_release }}</td>
+            <td>{{ product.date_revision }}</td>
+            <td class="cell-actions">
+              <div class="menu-wrapper" (click)="$event.stopPropagation()">
+                <button type="button" class="kebab-btn" (click)="toggleMenu(product.id)"
+                  aria-label="Opciones del producto">
+                  &#8942;
+                </button>
+
+                <div class="menu-panel" *ngIf="menuOpenId === product.id">
+                  <button type="button" class="menu-item" [routerLink]="['/products', product.id, 'edit']">
+                    Editar
+                  </button>
+                  <button type="button" class="menu-item menu-item--danger" (click)="openDeleteModal(product, $event)">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noResults>
+      <div class="products-table__state products-table__state--empty">
+        No se encontraron productos con el criterio de búsqueda.
+      </div>
+    </ng-template>
+  </ng-container>
+
+  <!-- Modal de eliminación -->
+  <div class="modal-backdrop" *ngIf="deleteCandidate">
+    <div class="modal">
+      <h3 class="modal__title">Eliminar producto</h3>
+      <p class="modal__text">
+        ¿Estás seguro de que deseas eliminar el producto
+        <strong>{{ deleteCandidate?.name }}</strong> (Id:
+        <strong>{{ deleteCandidate?.id }}</strong>)?
+      </p>
+      <p class="modal__text modal__text--small">
+        Esta acción no se puede deshacer.
+      </p>
+
+      <div *ngIf="deleteError" class="modal__error">
+        {{ deleteError }}
+      </div>
+
+      <div class="modal__footer">
+        <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="isDeleting">
+          Cancelar
+        </button>
+
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
+          {{ isDeleting ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <footer class="products-table__footer">
+    <span class="results-text">
+      {{ totalResults }} resultado{{ totalResults === 1 ? '' : 's' }}
+    </span>
+
+    <div class="products-table__footer-right">
+      <div class="products-table__page-size">
+        <span class="results-text">Ver</span>
+        <select id="pageSizeSelect" class="field-select" [ngModel]="pageSize"
+          (ngModelChange)="onPageSizeChange($event)">
+          <option *ngFor="let size of pageSizeOptions" [value]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+      <div class="paginator" *ngIf="totalPages > 1">
+        <button type="button" class="paginator__btn" (click)="prevPage()" [disabled]="currentPage === 1"
+          aria-label="Página anterior">
+          ‹
+        </button>
+        <span class="paginator__info">
+          Página {{ currentPage }} de {{ totalPages }}
+        </span>
+        <button type="button" class="paginator__btn" (click)="nextPage()" [disabled]="currentPage === totalPages"
+          aria-label="Página siguiente">
+          ›
+        </button>
+      </div>
+    </div>
+  </footer>
+</section>

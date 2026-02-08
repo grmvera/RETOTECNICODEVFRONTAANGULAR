@@ -1,0 +1,101 @@
+<section class="form-wrapper">
+    <header class="form-header">
+        <h2>Formulario de Registro</h2>
+    </header>
+
+    <div *ngIf="serverError" class="alert alert-error">
+        {{ serverError }}
+    </div>
+
+    <div *ngIf="serverSuccess" class="alert alert-success">
+        {{ serverSuccess }}
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="form">
+        <div class="form-grid">
+            <div class="field" [class.field--error]="f['id'].invalid && f['id'].touched">
+                <label for="id" class="field-label">ID</label>
+                <input id="id" type="text" formControlName="id" class="field-input"
+                    placeholder="Ej: trj-visa-classic" />
+                <div class="field-error" *ngIf="f['id'].touched && f['id'].errors">
+                    <span *ngIf="f['id'].errors['required']">El Id es requerido.</span>
+                    <span *ngIf="f['id'].errors['minlength']">Mínimo 3 caracteres.</span>
+                    <span *ngIf="f['id'].errors['maxlength']">Máximo 10 caracteres.</span>
+                    <span *ngIf="f['id'].errors['idExists']">Ya existe un producto con este Id.</span>
+                </div>
+            </div>
+
+            <div class="field" [class.field--error]="f['name'].invalid && f['name'].touched">
+                <label for="name" class="field-label">Nombre</label>
+                <input id="name" type="text" formControlName="name" class="field-input"
+                    placeholder="Nombre del producto" />
+                <div class="field-error" *ngIf="f['name'].touched && f['name'].errors">
+                    <span *ngIf="f['name'].errors['required']">El nombre es requerido.</span>
+                    <span *ngIf="f['name'].errors['minlength']">Mínimo 5 caracteres.</span>
+                    <span *ngIf="f['name'].errors['maxlength']">Máximo 100 caracteres.</span>
+                </div>
+            </div>
+
+            <div class="field" [class.field--error]="f['description'].invalid && f['description'].touched">
+                <label for="description" class="field-label">Descripción</label>
+                <input id="description" type="text" formControlName="description" class="field-input"
+                    placeholder="Descripción del producto" />
+                <div class="field-error" *ngIf="f['description'].touched && f['description'].errors">
+                    <span *ngIf="f['description'].errors['required']">La descripción es requerida.</span>
+                    <span *ngIf="f['description'].errors['minlength']">Mínimo 10 caracteres.</span>
+                    <span *ngIf="f['description'].errors['maxlength']">Máximo 200 caracteres.</span>
+                </div>
+            </div>
+
+            <div class="field" [class.field--error]="f['logo'].invalid && f['logo'].touched">
+                <label for="logo" class="field-label">Logo (URL)</label>
+                <input id="logo" type="text" formControlName="logo" class="field-input" placeholder="https://..." />
+                <div class="field-error" *ngIf="f['logo'].touched && f['logo'].errors">
+                    <span *ngIf="f['logo'].errors['required']">El logo es requerido.</span>
+                </div>
+            </div>
+
+            <div class="field" [class.field--error]="
+          (form.errors?.['dateReleasePast'] || f['date_release'].invalid) &&
+          f['date_release'].touched
+        ">
+                <label for="date_release" class="field-label">Fecha de liberación</label>
+                <input id="date_release" type="date" formControlName="date_release" class="field-input" />
+                <div class="field-error" *ngIf="f['date_release'].touched">
+                    <span *ngIf="f['date_release'].errors?.['required']">
+                        La fecha de liberación es requerida.
+                    </span>
+                    <span *ngIf="form.errors?.['dateReleasePast']">
+                        La fecha de liberación debe ser igual o mayor a la fecha actual.
+                    </span>
+                </div>
+            </div>
+
+            <div class="field" [class.field--error]="
+          (form.errors?.['dateRevisionInvalid'] || f['date_revision'].invalid) &&
+          f['date_revision'].touched
+        ">
+                <label for="date_revision" class="field-label">Fecha de revisión</label>
+                <input id="date_revision" type="date" formControlName="date_revision" class="field-input" readonly />
+                <div class="field-error" *ngIf="f['date_revision'].touched">
+                    <span *ngIf="f['date_revision'].errors?.['required']">
+                        La fecha de revisión es requerida.
+                    </span>
+                    <span *ngIf="form.errors?.['dateRevisionInvalid']">
+                        La fecha de revisión debe ser exactamente un año posterior a la fecha de liberación.
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="form-footer">
+            <button type="button" class="btn btn-secondary" (click)="onReset()" [disabled]="isSubmitting">
+                Reiniciar
+            </button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+                {{ isSubmitting ? 'Agregando...' : 'Enviar' }}
+            </button>
+        </footer>
+    </form>
+</section>
